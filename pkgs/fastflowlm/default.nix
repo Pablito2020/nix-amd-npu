@@ -27,8 +27,8 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "FastFlowLM";
     repo = "FastFlowLM";
-    rev = "b82aa4c844df1ca9116182947e69394672ccc94e";
-    hash = "sha256-CqvjBg1mr16g23WnuYbXrl/b+/Mzi9kUzrdO5SClL6Y=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-uq/ZxvJA5HTJbMxofO4Hrz7ULvV1fPC7OHRXulMqwqw=";
     fetchSubmodules = true;
   };
 
