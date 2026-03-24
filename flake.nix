@@ -19,6 +19,7 @@
       # Overlay for nixpkgs compatibility - allows `pkgs.xrt` when applied
       flake.overlays.default = final: prev: {
         # XRT and XDNA driver
+        amdxdna-firmware = final.callPackage ./pkgs/amdxdna-firmware { };
         xrt = final.callPackage ./pkgs/xrt { };
         xrt-plugin-amdxdna = final.callPackage ./pkgs/xrt-plugin-amdxdna {
           inherit (final) xrt;
