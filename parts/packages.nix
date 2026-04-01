@@ -2,6 +2,12 @@
 {
   perSystem = { config, pkgs, system, ... }:
     let
+      amdxdna-driver = pkgs.callPackage ../pkgs/amdxdna-driver {
+        kernel = pkgs.linuxPackages_6_18.kernel;
+      };
+
+      amdxdna-firmware = pkgs.callPackage ../pkgs/amdxdna-firmware { };
+
       xrt = pkgs.callPackage ../pkgs/xrt { };
 
       xrt-plugin-amdxdna = pkgs.callPackage ../pkgs/xrt-plugin-amdxdna {
@@ -83,6 +89,11 @@
         inherit mlir-aie xrt-amdxdna;
       };
 
+      # FastFlowLM NPU-optimized LLM runtime
+      fastflowlm = pkgs.callPackage ../pkgs/fastflowlm {
+        inherit xrt;
+      };
+
       # Complete Ryzen AI stack (combines from-source + pre-built)
       ryzen-ai-full = pkgs.callPackage ../pkgs/ryzen-ai-full {
         inherit xrt xrt-amdxdna onnxruntime-vitisai dynamic-dispatch
@@ -92,7 +103,7 @@
     {
       packages = {
         # Free/open-source packages (built from source)
-        inherit xrt xrt-plugin-amdxdna xrt-amdxdna unilog xir target-factory vart trace-logging graph-engine xaiengine dynamic-dispatch onnxruntime-vitisai python-onnxruntime-vitisai mlir-aie whisper-iron;
+        inherit amdxdna-driver amdxdna-firmware xrt xrt-plugin-amdxdna xrt-amdxdna unilog xir target-factory vart trace-logging graph-engine xaiengine dynamic-dispatch onnxruntime-vitisai python-onnxruntime-vitisai mlir-aie whisper-iron fastflowlm;
         default = xrt-amdxdna;
       };
 

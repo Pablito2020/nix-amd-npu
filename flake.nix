@@ -19,6 +19,7 @@
       # Overlay for nixpkgs compatibility - allows `pkgs.xrt` when applied
       flake.overlays.default = final: prev: {
         # XRT and XDNA driver
+        amdxdna-firmware = final.callPackage ./pkgs/amdxdna-firmware { };
         xrt = final.callPackage ./pkgs/xrt { };
         xrt-plugin-amdxdna = final.callPackage ./pkgs/xrt-plugin-amdxdna {
           inherit (final) xrt;
@@ -67,6 +68,11 @@
         # Whisper-IRON speech recognition
         whisper-iron = final.callPackage ./pkgs/whisper-iron {
           inherit (final) mlir-aie xrt-amdxdna;
+        };
+
+        # FastFlowLM NPU-optimized LLM runtime
+        fastflowlm = final.callPackage ./pkgs/fastflowlm {
+          inherit (final) xrt;
         };
       };
 

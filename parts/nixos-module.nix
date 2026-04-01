@@ -20,6 +20,29 @@
             description = "The XRT package with AMDXDNA plugin to use.";
           };
 
+          firmwarePackage = lib.mkOption {
+            type = lib.types.package;
+            default = pkgs.amdxdna-firmware or self.packages.${pkgs.system}.amdxdna-firmware;
+            defaultText = lib.literalExpression "pkgs.amdxdna-firmware";
+            description = "The firmware package for the AMD XDNA NPU.";
+          };
+
+          kernelModulePackage = lib.mkOption {
+            type = lib.types.nullOr lib.types.package;
+            default =
+              if lib.versionOlder config.boot.kernelPackages.kernel.version "7.0"
+              then (pkgs.amdxdna-driver or self.packages.${pkgs.system}.amdxdna-driver).override {
+                kernel = config.boot.kernelPackages.kernel;
+              }
+              else null;
+            defaultText = lib.literalExpression "amdxdna-driver (auto-enabled for kernels < 7.0)";
+            description = ''
+              Out-of-tree AMD XDNA kernel module package.
+              Defaults to the out-of-tree driver for kernels older than 7.0.
+              Set to null to use the in-tree driver.
+            '';
+          };
+
           group = lib.mkOption {
             type = lib.types.str;
             default = "video";
@@ -66,6 +89,12 @@
 
           # Ensure amdxdna kernel module is loaded
           boot.kernelModules = [ cfg.kernelModule ];
+
+          # Out-of-tree kernel module for kernels < 6.14
+          boot.extraModulePackages = lib.optional (cfg.kernelModulePackage != null) cfg.kernelModulePackage;
+
+          # NPU firmware (only needed for out-of-tree driver)
+          hardware.firmware = lib.optional (cfg.kernelModulePackage != null) cfg.firmwarePackage;
 
           # SVA (Shared Virtual Addressing) requires IOMMU translated mode, not passthrough
           boot.kernelParams = [ "iommu.passthrough=0" ];
