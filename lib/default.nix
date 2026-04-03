@@ -9,5 +9,10 @@ rec {
 
   # Re-export commonly used functions
   inherit (meta) mkMeta;
-  inherit (vitisCommon) mkVitisDerivation addGcc15Compat fakeGitRepo removeWerror;
+  inherit (vitisCommon)
+    mkVitisDerivation
+    addGcc15Compat
+    fakeGitRepo
+    removeWerror
+    ;
 }

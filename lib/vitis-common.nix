@@ -59,40 +59,50 @@ rec {
 
   # Create a standard Vitis AI derivation with common settings
   # This is a helper function that can be used in callPackage
-  mkVitisDerivation = {
-    stdenv,
-    fetchFromGitHub,
-    cmake,
-    ninja,
-    pkg-config,
-    git ? null,
-    ...
-  }@pkgArgs: {
-    pname,
-    version,
-    src,
-    nativeBuildInputs ? [ ],
-    buildInputs ? [ ],
-    cmakeFlags ? [ ],
-    postPatch ? "",
-    meta,
-    ...
-  }@args:
+  mkVitisDerivation =
+    {
+      stdenv,
+      fetchFromGitHub,
+      cmake,
+      ninja,
+      pkg-config,
+      git ? null,
+      ...
+    }@pkgArgs:
+    {
+      pname,
+      version,
+      src,
+      nativeBuildInputs ? [ ],
+      buildInputs ? [ ],
+      cmakeFlags ? [ ],
+      postPatch ? "",
+      meta,
+      ...
+    }@args:
     stdenv.mkDerivation (
       {
-        inherit pname version src meta;
+        inherit
+          pname
+          version
+          src
+          meta
+          ;
 
         nativeBuildInputs = [
           cmake
           ninja
           pkg-config
-        ] ++ lib.optional (git != null) git ++ nativeBuildInputs;
+        ]
+        ++ lib.optional (git != null) git
+        ++ nativeBuildInputs;
 
         inherit buildInputs;
 
         cmakeFlags = commonVitisFlags ++ cmakeFlags;
 
-        postPatch = removeWerror + addGcc15Compat + lib.optionalString (git != null) fakeGitRepo + postPatch;
+        postPatch =
+          removeWerror + addGcc15Compat + lib.optionalString (git != null) fakeGitRepo + postPatch;
       }
       // (removeAttrs args [
         "pname"

@@ -7,7 +7,8 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = inputs@{ flake-parts, nixpkgs, ... }:
+  outputs =
+    inputs@{ flake-parts, nixpkgs, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
 
@@ -38,11 +39,13 @@
         fastflowlm = final.callPackage ./pkgs/fastflowlm { };
       };
 
-      perSystem = { system, ... }: {
-        _module.args.pkgs = import nixpkgs {
-          inherit system;
-          # Note: XRT is Apache-2.0 licensed, no unfree components required
+      perSystem =
+        { system, ... }:
+        {
+          _module.args.pkgs = import nixpkgs {
+            inherit system;
+            # Note: XRT is Apache-2.0 licensed, no unfree components required
+          };
         };
-      };
     };
 }

@@ -46,7 +46,7 @@
   # IMPORTANT: These two versions MUST match! Update both together.
   # ==========================================================================
   xrt = {
-    version = "202610.2.21.21";  # Format: YYYYMM.MAJOR.MINOR.PATCH
+    version = "202610.2.21.21"; # Format: YYYYMM.MAJOR.MINOR.PATCH
     src = {
       owner = "Xilinx";
       repo = "XRT";
@@ -56,8 +56,8 @@
   };
 
   xdna-driver = {
-    version = "202610.2.21.21";  # MUST match xrt.version above!
-    pluginVersion = "2.21.0";    # Shared library version (libxrt_driver_xdna.so.2.21.0)
+    version = "202610.2.21.21"; # MUST match xrt.version above!
+    pluginVersion = "2.21.0"; # Shared library version (libxrt_driver_xdna.so.2.21.0)
     src = {
       owner = "amd";
       repo = "xdna-driver";
@@ -72,7 +72,7 @@
   # All 3.5.0 components should be updated together for compatibility.
   # ==========================================================================
   unilog = {
-    version = "3.5.0";  # Base logging library, no Vitis AI deps
+    version = "3.5.0"; # Base logging library, no Vitis AI deps
     src = {
       owner = "amd";
       repo = "unilog";
@@ -166,7 +166,7 @@
     # Note: Requires manual download from AMD
     # https://www.amd.com/en/developer/resources/ryzen-ai-software.html
     filename = "ryzen-ai-rt-1.6.1-20250516.tar.gz";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";  # Placeholder
+    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Placeholder
   };
 
   # Applications

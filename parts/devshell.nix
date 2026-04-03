@@ -1,6 +1,7 @@
 { inputs, ... }:
 {
-  perSystem = { config, pkgs, ... }:
+  perSystem =
+    { config, pkgs, ... }:
     let
       xrt = config.packages.xrt;
       xrt-amdxdna = config.packages.xrt-amdxdna;
@@ -107,19 +108,21 @@
           packages = [
             xrt-amdxdna
             mlir-aie
-            (pkgs.python312.withPackages (ps: with ps; [
-              numpy
-              scipy
-              pytest
-              # Audio/ML deps
-              librosa
-              soundfile
-              transformers
-              torch
-              # For MLIR-AIE
-              pybind11
-              ml-dtypes
-            ]))
+            (pkgs.python312.withPackages (
+              ps: with ps; [
+                numpy
+                scipy
+                pytest
+                # Audio/ML deps
+                librosa
+                soundfile
+                transformers
+                torch
+                # For MLIR-AIE
+                pybind11
+                ml-dtypes
+              ]
+            ))
             pkgs.cmake
             pkgs.ninja
             pkgs.clang
@@ -239,17 +242,19 @@
           packages = [
             xrt-amdxdna
             mlir-aie
-            (pkgs.python312.withPackages (ps: with ps; [
-              numpy
-              scipy
-              pytest
-              librosa
-              soundfile
-              transformers
-              torch
-              # For MLIR-AIE
-              ml-dtypes
-            ]))
+            (pkgs.python312.withPackages (
+              ps: with ps; [
+                numpy
+                scipy
+                pytest
+                librosa
+                soundfile
+                transformers
+                torch
+                # For MLIR-AIE
+                ml-dtypes
+              ]
+            ))
             pkgs.cmake
             pkgs.ninja
             pkgs.clang

@@ -5,7 +5,13 @@
 
     # NixOS module for AMD NPU support
     # Works both as a flake module and when copied to nixpkgs
-    amd-npu = { config, lib, pkgs, ... }:
+    amd-npu =
+      {
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
       let
         cfg = config.hardware.amd-npu;
       in
@@ -30,11 +36,12 @@
           kernelModulePackage = lib.mkOption {
             type = lib.types.nullOr lib.types.package;
             default =
-              if lib.versionOlder config.boot.kernelPackages.kernel.version "7.0"
-              then (pkgs.amdxdna-driver or self.packages.${pkgs.system}.amdxdna-driver).override {
-                kernel = config.boot.kernelPackages.kernel;
-              }
-              else null;
+              if lib.versionOlder config.boot.kernelPackages.kernel.version "7.0" then
+                (pkgs.amdxdna-driver or self.packages.${pkgs.system}.amdxdna-driver).override {
+                  kernel = config.boot.kernelPackages.kernel;
+                }
+              else
+                null;
             defaultText = lib.literalExpression "amdxdna-driver (auto-enabled for kernels < 7.0)";
             description = ''
               Out-of-tree AMD XDNA kernel module package.
@@ -110,8 +117,18 @@
           # The NPU driver needs to mmap large buffers (64MB+)
           # Only grant to members of the configured group (default: video)
           security.pam.loginLimits = [
-            { domain = "@${cfg.group}"; type = "soft"; item = "memlock"; value = toString cfg.memlockLimit; }
-            { domain = "@${cfg.group}"; type = "hard"; item = "memlock"; value = toString cfg.memlockLimit; }
+            {
+              domain = "@${cfg.group}";
+              type = "soft";
+              item = "memlock";
+              value = toString cfg.memlockLimit;
+            }
+            {
+              domain = "@${cfg.group}";
+              type = "hard";
+              item = "memlock";
+              value = toString cfg.memlockLimit;
+            }
           ];
 
           # Add combined XRT+plugin to system packages
@@ -135,9 +152,9 @@
           ];
 
           # Warnings for common configuration issues
-          warnings = lib.optional
-            (cfg.group != "video" && !(builtins.elem cfg.group config.users.groups))
-            "hardware.amd-npu.group is set to '${cfg.group}' but this group doesn't exist. NPU access may not work.";
+          warnings =
+            lib.optional (cfg.group != "video" && !(builtins.elem cfg.group config.users.groups))
+              "hardware.amd-npu.group is set to '${cfg.group}' but this group doesn't exist. NPU access may not work.";
         };
       };
   };

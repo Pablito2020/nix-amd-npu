@@ -1,10 +1,25 @@
 { inputs, ... }:
 {
-  perSystem = { config, pkgs, system, ... }:
+  perSystem =
+    {
+      config,
+      pkgs,
+      system,
+      ...
+    }:
     let
       # XRT and Vitis AI packages come from nixpkgs fork (vitis-ai branch)
       inherit (pkgs) xrt xrt-plugin-amdxdna xrt-amdxdna;
-      inherit (pkgs) unilog xir target-factory vart trace-logging graph-engine xaiengine dynamic-dispatch;
+      inherit (pkgs)
+        unilog
+        xir
+        target-factory
+        vart
+        trace-logging
+        graph-engine
+        xaiengine
+        dynamic-dispatch
+        ;
 
       # Firmware and kernel driver (local packages, not yet in nixpkgs)
       amdxdna-driver = pkgs.callPackage ../pkgs/amdxdna-driver {
@@ -45,7 +60,26 @@
     {
       packages = {
         # Free/open-source packages (built from source)
-        inherit amdxdna-driver amdxdna-firmware xrt xrt-plugin-amdxdna xrt-amdxdna unilog xir target-factory vart trace-logging graph-engine xaiengine dynamic-dispatch onnxruntime-vitisai python-onnxruntime-vitisai mlir-aie whisper-iron fastflowlm;
+        inherit
+          amdxdna-driver
+          amdxdna-firmware
+          xrt
+          xrt-plugin-amdxdna
+          xrt-amdxdna
+          unilog
+          xir
+          target-factory
+          vart
+          trace-logging
+          graph-engine
+          xaiengine
+          dynamic-dispatch
+          onnxruntime-vitisai
+          python-onnxruntime-vitisai
+          mlir-aie
+          whisper-iron
+          fastflowlm
+          ;
         default = xrt-amdxdna;
       };
 
@@ -57,7 +91,7 @@
       # Integration tests - run with `nix flake check`
       checks = {
         # Verify XRT builds and has expected binaries
-        xrt-binaries = pkgs.runCommand "check-xrt-binaries" {} ''
+        xrt-binaries = pkgs.runCommand "check-xrt-binaries" { } ''
           echo "Checking XRT binaries..."
           test -x ${xrt}/bin/unwrapped/xrt-smi || (echo "FAIL: xrt-smi not found" && exit 1)
           test -x ${xrt}/bin/unwrapped/xclbinutil || (echo "FAIL: xclbinutil not found" && exit 1)
@@ -66,7 +100,7 @@
         '';
 
         # Verify plugin library exists and has correct soname
-        plugin-library = pkgs.runCommand "check-plugin-library" {} ''
+        plugin-library = pkgs.runCommand "check-plugin-library" { } ''
           echo "Checking plugin library..."
           pluginLib="${xrt-plugin-amdxdna}/opt/xilinx/xrt/lib"
           test -f "$pluginLib/libxrt_driver_xdna.so.2" || (echo "FAIL: plugin .so.2 not found" && exit 1)
@@ -76,7 +110,7 @@
         '';
 
         # Verify combined package has plugin discoverable by XRT
-        plugin-discovery = pkgs.runCommand "check-plugin-discovery" {} ''
+        plugin-discovery = pkgs.runCommand "check-plugin-discovery" { } ''
           echo "Checking plugin discovery in combined package..."
           xrtLib="${xrt-amdxdna}/opt/xilinx/xrt/lib"
           test -L "$xrtLib/libxrt_driver_xdna.so.2" || (echo "FAIL: plugin symlink not in combined package" && exit 1)
@@ -87,7 +121,7 @@
         '';
 
         # Verify pkg-config files are generated
-        pkg-config-files = pkgs.runCommand "check-pkg-config" {} ''
+        pkg-config-files = pkgs.runCommand "check-pkg-config" { } ''
           echo "Checking pkg-config files..."
           test -f ${xrt}/lib/pkgconfig/xrt.pc || (echo "FAIL: xrt.pc not found" && exit 1)
           test -f ${xrt-plugin-amdxdna}/lib/pkgconfig/xrt-amdxdna.pc || (echo "FAIL: xrt-amdxdna.pc not found" && exit 1)
@@ -96,7 +130,7 @@
         '';
 
         # Verify environment setup works
-        environment-setup = pkgs.runCommand "check-environment" {} ''
+        environment-setup = pkgs.runCommand "check-environment" { } ''
           echo "Checking environment setup..."
           export XILINX_XRT="${xrt-amdxdna}/opt/xilinx/xrt"
           test -d "$XILINX_XRT" || (echo "FAIL: XILINX_XRT directory doesn't exist" && exit 1)

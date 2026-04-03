@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Opt into Node.js 24 to avoid deprecation warnings
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   check-flake:
     name: Check Nix Flake
