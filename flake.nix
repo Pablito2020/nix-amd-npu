@@ -2,7 +2,8 @@
   description = "AMD Ryzen AI NPU support for NixOS (XRT + XDNA driver)";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Use fork with vitis-ai branch containing xrt, xrt-plugin-amdxdna, and NixOS module
+    nixpkgs.url = "github:robcohen/nixpkgs/vitis-ai";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
@@ -16,24 +17,11 @@
         ./parts/nixos-module.nix
       ];
 
-      # Overlay for nixpkgs compatibility - allows `pkgs.xrt` when applied
+      # Overlay adds packages not yet in nixpkgs
+      # XRT packages (xrt, xrt-plugin-amdxdna, xrt-amdxdna) come from nixpkgs fork
       flake.overlays.default = final: prev: {
-        # XRT and XDNA driver
+        # Firmware and kernel driver (not yet in nixpkgs)
         amdxdna-firmware = final.callPackage ./pkgs/amdxdna-firmware { };
-        xrt = final.callPackage ./pkgs/xrt { };
-        xrt-plugin-amdxdna = final.callPackage ./pkgs/xrt-plugin-amdxdna {
-          inherit (final) xrt;
-        };
-        xrt-amdxdna = final.symlinkJoin {
-          name = "xrt-amdxdna-${final.xrt.version}";
-          paths = [ final.xrt final.xrt-plugin-amdxdna ];
-          postBuild = ''
-            cd $out/opt/xilinx/xrt/lib
-            pluginLib="${final.xrt-plugin-amdxdna}/opt/xilinx/xrt/lib"
-            ln -sf "$pluginLib/libxrt_driver_xdna.so.2" .
-            ln -sf "$pluginLib/libxrt_driver_xdna.so.${final.xrt-plugin-amdxdna.pluginVersion}" .
-          '';
-        };
 
         # Vitis AI libraries
         unilog = final.callPackage ./pkgs/vitis-ai/unilog { };

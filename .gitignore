@@ -74,3 +74,4 @@ Thumbs.db
 
 # Log files
 *.log
+nixpkgs-pr/

@@ -2,37 +2,15 @@
 {
   perSystem = { config, pkgs, system, ... }:
     let
+      # XRT packages come from nixpkgs fork (vitis-ai branch)
+      inherit (pkgs) xrt xrt-plugin-amdxdna xrt-amdxdna;
+
+      # Firmware and kernel driver (local packages, not yet in nixpkgs)
       amdxdna-driver = pkgs.callPackage ../pkgs/amdxdna-driver {
         kernel = pkgs.linuxPackages_6_18.kernel;
       };
 
       amdxdna-firmware = pkgs.callPackage ../pkgs/amdxdna-firmware { };
-
-      xrt = pkgs.callPackage ../pkgs/xrt { };
-
-      xrt-plugin-amdxdna = pkgs.callPackage ../pkgs/xrt-plugin-amdxdna {
-        inherit xrt;
-      };
-
-      # Combined XRT with XDNA plugin - plugins must be in same lib dir for discovery
-      xrt-amdxdna = pkgs.symlinkJoin {
-        name = "xrt-amdxdna-${xrt.version}";
-        paths = [ xrt xrt-plugin-amdxdna ];
-        postBuild = ''
-          # Ensure the plugin is discoverable by XRT
-          # XRT looks for libxrt_driver_*.so.MAJOR_VERSION in its lib dir
-          cd $out/opt/xilinx/xrt/lib
-
-          pluginLib="${xrt-plugin-amdxdna}/opt/xilinx/xrt/lib"
-          if [ ! -f "$pluginLib/libxrt_driver_xdna.so.2" ]; then
-            echo "ERROR: Plugin library not found at $pluginLib/libxrt_driver_xdna.so.2"
-            exit 1
-          fi
-
-          ln -sf "$pluginLib/libxrt_driver_xdna.so.2" .
-          ln -sf "$pluginLib/libxrt_driver_xdna.so.${xrt-plugin-amdxdna.pluginVersion}" .
-        '';
-      };
 
       # Vitis AI components
       unilog = pkgs.callPackage ../pkgs/vitis-ai/unilog { };
@@ -70,14 +48,11 @@
 
       # Python bindings for ONNX Runtime with VitisAI EP
       python-onnxruntime-vitisai = pkgs.callPackage ../pkgs/python-onnxruntime-vitisai {
-        inherit onnxruntime-vitisai xrt;
-        inherit (pkgs) python3Packages;
+        inherit onnxruntime-vitisai;
       };
 
       # AMD pre-built components (unfree, requires manual download)
-      ryzen-ai-software = pkgs.callPackage ../pkgs/ryzen-ai-software {
-        inherit xrt;
-      };
+      ryzen-ai-software = pkgs.callPackage ../pkgs/ryzen-ai-software { };
 
       ryzen-ai-xclbin = pkgs.callPackage ../pkgs/ryzen-ai-xclbin { };
 
@@ -86,18 +61,15 @@
 
       # Whisper-IRON speech recognition demo
       whisper-iron = pkgs.callPackage ../pkgs/whisper-iron {
-        inherit mlir-aie xrt-amdxdna;
+        inherit mlir-aie;
       };
 
       # FastFlowLM NPU-optimized LLM runtime
-      fastflowlm = pkgs.callPackage ../pkgs/fastflowlm {
-        inherit xrt;
-      };
+      fastflowlm = pkgs.callPackage ../pkgs/fastflowlm { };
 
       # Complete Ryzen AI stack (combines from-source + pre-built)
       ryzen-ai-full = pkgs.callPackage ../pkgs/ryzen-ai-full {
-        inherit xrt xrt-amdxdna onnxruntime-vitisai dynamic-dispatch
-                unilog xir vart graph-engine;
+        inherit onnxruntime-vitisai dynamic-dispatch unilog xir vart graph-engine;
       };
     in
     {
