@@ -147,7 +147,24 @@ jobs:
 
       - name: Evaluate NixOS module
         run: |
-          nix eval --json '.#nixosModules' | jq .
+          # NixOS modules are functions and can't be converted to JSON directly
+          # Instead, verify the module can be instantiated in a NixOS configuration
+          nix eval --raw --impure --expr '
+            let
+              flake = builtins.getFlake (toString ./.);
+              pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
+              testConfig = (pkgs.nixos {
+                imports = [ flake.nixosModules.amd-npu ];
+                hardware.amd-npu.enable = false;
+                boot.loader.grub.enable = false;
+                fileSystems."/".device = "none";
+              }).config;
+            in
+              if testConfig ? hardware.amd-npu
+              then "NixOS module defines hardware.amd-npu options"
+              else throw "Module missing expected options"
+          '
+          echo ""
           echo "NixOS module evaluation successful"
 
   formatting:
