@@ -2,8 +2,9 @@
 {
   perSystem = { config, pkgs, system, ... }:
     let
-      # XRT packages come from nixpkgs fork (vitis-ai branch)
+      # XRT and Vitis AI packages come from nixpkgs fork (vitis-ai branch)
       inherit (pkgs) xrt xrt-plugin-amdxdna xrt-amdxdna;
+      inherit (pkgs) unilog xir target-factory vart trace-logging graph-engine xaiengine dynamic-dispatch;
 
       # Firmware and kernel driver (local packages, not yet in nixpkgs)
       amdxdna-driver = pkgs.callPackage ../pkgs/amdxdna-driver {
@@ -12,39 +13,8 @@
 
       amdxdna-firmware = pkgs.callPackage ../pkgs/amdxdna-firmware { };
 
-      # Vitis AI components
-      unilog = pkgs.callPackage ../pkgs/vitis-ai/unilog { };
-
-      xir = pkgs.callPackage ../pkgs/vitis-ai/xir {
-        inherit unilog;
-      };
-
-      target-factory = pkgs.callPackage ../pkgs/vitis-ai/target-factory {
-        inherit unilog xir;
-      };
-
-      vart = pkgs.callPackage ../pkgs/vitis-ai/vart {
-        inherit unilog xir target-factory;
-        xrt = null;  # XRT is optional for vart
-      };
-
-      trace-logging = pkgs.callPackage ../pkgs/vitis-ai/trace-logging { };
-
-      graph-engine = pkgs.callPackage ../pkgs/vitis-ai/graph-engine {
-        inherit unilog xir vart xrt;
-      };
-
-      xaiengine = pkgs.callPackage ../pkgs/vitis-ai/xaiengine { };
-
-      dynamic-dispatch = pkgs.callPackage ../pkgs/vitis-ai/dynamic-dispatch {
-        inherit xaiengine xrt;
-      };
-
-      # ONNX Runtime with VitisAI EP (C++ library)
-      onnxruntime-vitisai = pkgs.callPackage ../pkgs/onnxruntime-vitisai {
-        inherit xrt;
-        inherit (pkgs) onnxruntime;
-      };
+      # ONNX Runtime with VitisAI EP (C++ library) - not yet in nixpkgs
+      onnxruntime-vitisai = pkgs.callPackage ../pkgs/onnxruntime-vitisai { };
 
       # Python bindings for ONNX Runtime with VitisAI EP
       python-onnxruntime-vitisai = pkgs.callPackage ../pkgs/python-onnxruntime-vitisai {
@@ -69,7 +39,7 @@
 
       # Complete Ryzen AI stack (combines from-source + pre-built)
       ryzen-ai-full = pkgs.callPackage ../pkgs/ryzen-ai-full {
-        inherit onnxruntime-vitisai dynamic-dispatch unilog xir vart graph-engine;
+        inherit onnxruntime-vitisai;
       };
     in
     {

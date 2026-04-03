@@ -17,51 +17,25 @@
         ./parts/nixos-module.nix
       ];
 
-      # Overlay adds packages not yet in nixpkgs
-      # XRT packages (xrt, xrt-plugin-amdxdna, xrt-amdxdna) come from nixpkgs fork
+      # Overlay adds packages not yet in nixpkgs fork
+      # XRT and Vitis AI packages now come from nixpkgs fork (vitis-ai branch)
       flake.overlays.default = final: prev: {
         # Firmware and kernel driver (not yet in nixpkgs)
         amdxdna-firmware = final.callPackage ./pkgs/amdxdna-firmware { };
 
-        # Vitis AI libraries
-        unilog = final.callPackage ./pkgs/vitis-ai/unilog { };
-        xir = final.callPackage ./pkgs/vitis-ai/xir {
-          inherit (final) unilog;
-        };
-        target-factory = final.callPackage ./pkgs/vitis-ai/target-factory {
-          inherit (final) unilog xir;
-        };
-        vart = final.callPackage ./pkgs/vitis-ai/vart {
-          inherit (final) unilog xir target-factory;
-          xrt = null;
-        };
-        trace-logging = final.callPackage ./pkgs/vitis-ai/trace-logging { };
-        graph-engine = final.callPackage ./pkgs/vitis-ai/graph-engine {
-          inherit (final) unilog xir vart xrt;
-        };
-        xaiengine = final.callPackage ./pkgs/vitis-ai/xaiengine { };
-        dynamic-dispatch = final.callPackage ./pkgs/vitis-ai/dynamic-dispatch {
-          inherit (final) xaiengine xrt;
-        };
+        # ONNX Runtime with VitisAI EP (not yet in nixpkgs)
+        onnxruntime-vitisai = final.callPackage ./pkgs/onnxruntime-vitisai { };
 
-        # ONNX Runtime with VitisAI EP
-        onnxruntime-vitisai = final.callPackage ./pkgs/onnxruntime-vitisai {
-          inherit (final) xrt;
-          inherit (prev) onnxruntime;
-        };
-
-        # MLIR-AIE for NPU kernel development
+        # MLIR-AIE for NPU kernel development (not yet in nixpkgs)
         mlir-aie = final.callPackage ./pkgs/mlir-aie { };
 
-        # Whisper-IRON speech recognition
+        # Whisper-IRON speech recognition (not yet in nixpkgs)
         whisper-iron = final.callPackage ./pkgs/whisper-iron {
-          inherit (final) mlir-aie xrt-amdxdna;
+          inherit (final) mlir-aie;
         };
 
-        # FastFlowLM NPU-optimized LLM runtime
-        fastflowlm = final.callPackage ./pkgs/fastflowlm {
-          inherit (final) xrt;
-        };
+        # FastFlowLM NPU-optimized LLM runtime (not yet in nixpkgs)
+        fastflowlm = final.callPackage ./pkgs/fastflowlm { };
       };
 
       perSystem = { system, ... }: {
